@@ -18,6 +18,7 @@ package pubsub
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 
 	"cloud.google.com/go/pubsub"
@@ -105,7 +106,8 @@ func (ese *GcpPubSubEventSourceExecutor) listenEvents(ctx context.Context, sc *p
 
 	err = subscription.Receive(ctx, func(msgCtx context.Context, m *pubsub.Message) {
 		logger.Info("received GCP PubSub Message from topic")
-		dataCh <- m.Data
+		encodedData := []byte(base64.StdEncoding.EncodeToString(m.Data))
+		dataCh <- encodedData
 		m.Ack()
 	})
 	if err != nil {
